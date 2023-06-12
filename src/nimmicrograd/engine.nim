@@ -11,13 +11,13 @@ type
         Exp = "exp"
 
     Value* = ref object
-        data*: float64
-        grad*: float64
+        data*: float
+        grad*: float
         label*: string
         children: seq[Value]
         op: Operation
     
-proc newValue*(data: float64, children = newSeq[Value](), op = None, label = ""): Value =
+proc newValue*(data: float, children = newSeq[Value](), op = None, label = ""): Value =
     Value(data: data, grad: 0, children: children, op: op, label: label)
 
 # add
@@ -25,10 +25,10 @@ proc newValue*(data: float64, children = newSeq[Value](), op = None, label = "")
 proc `+`*(self: Value, other: Value): Value =
     newValue(self.data + other.data, @[self, other], Add)
 
-proc `+`*(self: Value, other: float64): Value =
+proc `+`*(self: Value, other: float): Value =
     self + newValue(other)
 
-proc `+`*(self: float64, other: Value): Value =
+proc `+`*(self: float, other: Value): Value =
     other + self
 
 # mul
@@ -36,10 +36,10 @@ proc `+`*(self: float64, other: Value): Value =
 proc `*`*(self: Value, other: Value): Value =
     newValue(self.data * other.data, @[self, other], Mul)
 
-proc `*`*(self: Value, other: float64): Value =
+proc `*`*(self: Value, other: float): Value =
     self * newValue(other)
 
-proc `*`*(self: float64, other: Value): Value =
+proc `*`*(self: float, other: Value): Value =
     other * self
 
 # Sub
@@ -50,15 +50,15 @@ proc `-`*(self: Value): Value =
 proc `-`*(self: Value, other: Value): Value =
     self + (-other)
 
-proc `-`*(self: Value, other: float64): Value =
+proc `-`*(self: Value, other: float): Value =
     self + (-other)
 
-proc `-`*(self: float64, other: Value): Value =
+proc `-`*(self: float, other: Value): Value =
     -other + self
 
 # pow
 
-proc `**`*(self: Value, other: float64): Value =
+proc `**`*(self: Value, other: float): Value =
     newValue(self.data.pow(other), @[self], Pow)
 
 # div
@@ -66,10 +66,10 @@ proc `**`*(self: Value, other: float64): Value =
 proc `/`*(self: Value, other: Value): Value =
     self * (other ** -1)
 
-proc `/`*(self: Value, other: float64): Value =
+proc `/`*(self: Value, other: float): Value =
     self * (other.pow(-1))
 
-proc `/`*(self: float64, other: Value): Value =
+proc `/`*(self: float, other: Value): Value =
     self * (other ** -1)
 
 proc tanh*(self: Value): Value =
@@ -114,7 +114,7 @@ proc backward*(self: Value): void =
             let t = v.data
             v.children[0].grad += (1 - t.pow(2)) * v.grad
         of Relu:
-            v.children[0].grad += (v.data > 0).float64 * v.grad
+            v.children[0].grad += (v.data > 0).float * v.grad
         of Exp:
             v.children[0].grad += v.data * v.grad
         of None:
