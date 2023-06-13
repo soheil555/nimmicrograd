@@ -1,7 +1,7 @@
 import strformat, algorithm, math
 
 type 
-    Operation = enum
+    Operation* = enum
         None = ""
         Add = "+"
         Mul = "*"
@@ -14,11 +14,17 @@ type
         data*: float
         grad*: float
         label*: string
-        children: seq[Value]
-        op: Operation
+        children*: seq[Value]
+        case op*: Operation
+        of Pow:
+        exponent: float
+        else:
+            discard
     
-proc newValue*(data: float, children = newSeq[Value](), op = None, label = ""): Value =
-    Value(data: data, grad: 0, children: children, op: op, label: label)
+proc newValue*(data: float, children = newSeq[Value](), op = None, label = "", exponent: float = 1): Value =
+    result = Value(data: data, grad: 0, children: children, op: op, label: label)
+    if op == Pow:
+        result.exponent = exponent
 
 # add
 
@@ -59,7 +65,7 @@ proc `-`*(self: float, other: Value): Value =
 # pow
 
 proc `**`*(self: Value, other: float): Value =
-    newValue(self.data.pow(other), @[self], Pow)
+    newValue(self.data.pow(other), @[self], Pow, exponent = other)
 
 # div
 
@@ -107,12 +113,9 @@ proc backward*(self: Value): void =
             v.children[0].grad += v.children[1].data * v.grad
             v.children[1].grad += v.children[0].data * v.grad
         of Pow:
-            var child = v.children[0]
-            let exponent = v.data.log10() / child.data.log10()
-            child.grad += exponent * v.data / child.data * v.grad
+            v.children[0].grad += v.exponent * v.children[0].data.pow(v.exponent-1) * v.grad
         of Tanh:
-            let t = v.data
-            v.children[0].grad += (1 - t.pow(2)) * v.grad
+            v.children[0].grad += (1 - v.data.pow(2)) * v.grad
         of Relu:
             v.children[0].grad += (v.data > 0).float * v.grad
         of Exp:
