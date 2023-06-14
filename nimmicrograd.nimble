@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.3"
+version       = "0.1.4"
 author        = "soheil"
 description   = "Nim implementation of micrograd autograd engine"
 license       = "MIT"

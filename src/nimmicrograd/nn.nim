@@ -97,14 +97,12 @@ proc newMLP*(nin: int, nouts: seq[int], activation = Tanh): MLP =
     return MLP(layers: layers)
 
 proc forward*(self: MLP, x: seq[Value]): seq[Value] =
-    var copied = seq(x)
+    result = seq(x)
     for layer in self.layers:
-        copied = layer.forward(copied)
-
-    return copied
+        result = layer.forward(result)
 
 proc forward*(self: MLP, x: seq[float]): seq[Value] =
-    return self.forward(x.mapIt(newValue(it)))
+    self.forward(x.mapIt(newValue(it)))
 
 proc parameters*(self: MLP): seq[Value] =
     result = newSeq[Value]()
