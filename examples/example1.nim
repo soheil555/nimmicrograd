@@ -1,4 +1,5 @@
-import nimmicrograd, sequtils, strformat
+import sequtils, strformat
+import nimmicrograd
 
 let n = newMLP(3, @[4, 4, 1])
 let xs: seq[seq[float]] = @[
@@ -17,7 +18,7 @@ for k in 0..<20:
 
     var loss = newValue(0)
     for (ygt, yout) in zip(ys, ypred):
-        loss = loss + (yout - ygt)**2
+        loss += (yout - ygt)**2
 
     # backward pass
     n.zeroGrad()

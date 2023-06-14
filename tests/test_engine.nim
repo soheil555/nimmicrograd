@@ -6,7 +6,7 @@ suite "Value":
 
   test "Initialization":
     let a = newValue(5)
-    let b = newValue(4, @[a], label="b")
+    let b = newValue(4, @[a], label = "b")
 
     check:
       b.data == 4
@@ -15,7 +15,7 @@ suite "Value":
       b.op == None
       b.label == "b"
       b.grad == 0
-  
+
   test "Add":
     let a = newValue(5)
     let b = newValue(4)
@@ -42,7 +42,7 @@ suite "Value":
       (-a).data == -5
       (a-6).data == -1
       (9-a).data == 4
-    
+
   test "Mul":
     let a = newValue(5)
     let b = newValue(4)
@@ -75,7 +75,7 @@ suite "Value":
     let c = a/b
 
     check:
-      c.data == 5/4 
+      c.data == 5/4
 
       (a/5).data == 1
       (10/a).data == 2
@@ -95,7 +95,7 @@ suite "Value":
     let b = newValue(-1)
     let c = a.relu()
     let d = b.relu()
-    
+
     check:
       c.data == 5
       c.op == Relu
@@ -119,15 +119,15 @@ suite "Value":
     var b = newValue(2)
     var c = a + b
     var d = a * b + b**3
-    c = c + c + 1
-    c = c + 1 + c + (-a)
-    d = d + d * 2 + (b + a).relu()
-    d = d + 3 * d + (b - a).tanh()
-    d = d + d.exp()
+    c += c + 1
+    c += 1 + c + (-a)
+    d += d * 2 + (b + a).relu()
+    d += 3 * d + (b - a).tanh()
+    d += d.exp()
     var e = c - d
     var f = e**2
     var g = f / 2
-    g = g + 10 / f
+    g += 10 / f
 
     g.backward()
 
@@ -142,5 +142,5 @@ suite "Value":
     check:
       $a == "Value(data=5.0, grad=0.0)"
 
-      
-  
+
+

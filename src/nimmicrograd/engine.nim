@@ -21,63 +21,58 @@ type
         else:
             discard
 
-proc newValue*(data: float, children = newSeq[Value](), op = None, label = "",
-        exponent: float = 1): Value =
+proc newValue*(data: float, children = newSeq[Value](), op = None, label = "", exponent: float = 1): Value =
     result = Value(data: data, grad: 0, children: children, op: op, label: label)
     if op == Pow:
         result.exponent = exponent
 
-# add
-
 proc `+`*(self: Value, other: Value): Value =
     newValue(self.data + other.data, @[self, other], Add)
 
-proc `+`*(self: Value, other: float): Value =
-    self + newValue(other)
+proc `+`*(self: Value, other: float|int): Value =
+    self + newValue(other.float)
 
 proc `+`*(self: float, other: Value): Value =
     other + self
 
-# mul
+proc `+=`*(self: var Value, other: Value|float|int) =
+    self = self + other
 
 proc `*`*(self: Value, other: Value): Value =
     newValue(self.data * other.data, @[self, other], Mul)
 
-proc `*`*(self: Value, other: float): Value =
-    self * newValue(other)
+proc `*`*(self: Value, other: float|int): Value =
+    self * newValue(other.float)
 
-proc `*`*(self: float, other: Value): Value =
-    other * self
+proc `*`*(self: float|int, other: Value): Value =
+    other * self.float
 
-# Sub
+proc `*=`*(self: var Value, other: Value|float|int) =
+    self = self * other
 
 proc `-`*(self: Value): Value =
     self * -1
 
-proc `-`*(self: Value, other: Value): Value =
-    self + (-other)
-
-proc `-`*(self: Value, other: float): Value =
+proc `-`*(self: Value, other: Value|float|int): Value =
     self + (-other)
 
 proc `-`*(self: float, other: Value): Value =
     -other + self
 
-# pow
+proc `-=`*(self: var Value, other: Value|float|int) =
+    self = self - other
 
 proc `**`*(self: Value, other: float): Value =
     newValue(self.data.pow(other), @[self], Pow, exponent = other)
 
-# div
-
-proc `/`*(self: Value, other: Value): Value =
+proc `/`*(self: Value|float|int, other: Value): Value =
     self * (other ** -1)
 
 proc `/`*(self: Value, other: float): Value =
     self * (other.pow(-1))
 
-proc `/`*(self: float, other: Value): Value =
-    self * (other ** -1)
+proc `/=`*(self: var Value, other: Value|float|int) =
+    self = self / other
 
 proc tanh*(self: Value): Value =
     let x = self.data
