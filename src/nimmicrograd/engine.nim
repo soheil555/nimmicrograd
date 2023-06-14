@@ -1,6 +1,6 @@
 import strformat, algorithm, math
 
-type 
+type
     Operation* = enum
         None = ""
         Add = "+"
@@ -20,8 +20,9 @@ type
         exponent: float
         else:
             discard
-    
-proc newValue*(data: float, children = newSeq[Value](), op = None, label = "", exponent: float = 1): Value =
+
+proc newValue*(data: float, children = newSeq[Value](), op = None, label = "",
+        exponent: float = 1): Value =
     result = Value(data: data, grad: 0, children: children, op: op, label: label)
     if op == Pow:
         result.exponent = exponent
@@ -89,7 +90,7 @@ proc relu*(self: Value): Value =
 
 proc exp*(self: Value): Value =
     newValue(self.data.exp(), @[self], Exp)
-    
+
 proc backward*(self: Value): void =
     var topo = newSeq[Value]()
     var visited = newSeq[Value]()
@@ -113,7 +114,8 @@ proc backward*(self: Value): void =
             v.children[0].grad += v.children[1].data * v.grad
             v.children[1].grad += v.children[0].data * v.grad
         of Pow:
-            v.children[0].grad += v.exponent * v.children[0].data.pow(v.exponent-1) * v.grad
+            v.children[0].grad += v.exponent * v.children[0].data.pow(
+                    v.exponent-1) * v.grad
         of Tanh:
             v.children[0].grad += (1 - v.data.pow(2)) * v.grad
         of Relu:

@@ -114,7 +114,7 @@ suite "Value":
       b.children.len == 1
       b.children[0] == a
 
-  test "backward":
+  test "Backward":
     var a = newValue(-4)
     var b = newValue(2)
     var c = a + b
