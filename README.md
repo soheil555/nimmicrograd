@@ -3,6 +3,12 @@
 
 This is a Nim implementation of the micrograd auto engine, based on Andrej Karpathy's YouTube video [The spelled-out intro to neural networks and backpropagation: building micrograd](https://youtu.be/VMj-3S1tku0).
 
+##  Installation
+
+```bash
+nimble install nimmicrograd
+```
+
 ## Examples
 
 For usage examples, please refer to the `examples` folder in the project repository
