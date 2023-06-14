@@ -16,17 +16,14 @@ proc zeroGrad*(self: Module) =
 
 type
     Activation* = enum
-        Tanh
-        Relu
+        Tanh = "Tanh"
+        Relu = "ReLU"
     Neuron* = ref object of Module
         nin*: int
         weights*: seq[Value]
         bias*: Value
-        case activation*: Activation
-        of Relu:
-            nonlin: bool
-        else:
-            discard
+        activation*: Activation
+        nonlin: bool
 
 proc newNeuron*(nin: int, activation = Tanh, nonlin = true): Neuron =
     var weights = newSeq[Value]()
@@ -34,31 +31,26 @@ proc newNeuron*(nin: int, activation = Tanh, nonlin = true): Neuron =
         weights.add(newValue(gauss()))
     let bias = newValue(gauss())
 
-    result = Neuron(nin: nin, weights: weights, bias: bias, activation: activation)
+    result = Neuron(nin: nin, weights: weights, bias: bias, activation: activation, nonlin: nonlin)
 
-    if result.activation == Relu:
-        result.nonlin = nonlin
-
-proc call*(self: Neuron, x: seq[float|Value]): Value =
+proc forward*(self: Neuron, x: seq[float|Value]): Value =
     var act = self.bias
     for (wi, xi) in zip(self.weights, x):
         act = act + (wi*xi)
 
-    result = case self.activation
-        of Tanh:
-            act.tanh()
-        of Relu:
-            if self.nonlin: act.relu() else: act
+    result = if self.nonlin:
+                    case self.activation
+                    of Tanh:
+                        act.tanh()
+                    of Relu:
+                        act.relu()
+             else: act
 
 proc parameters*(self: Neuron): seq[Value] =
     self.weights & @[self.bias]
 
 proc `$`*(self: Neuron): string =
-    let activation = case self.activation
-        of Tanh:
-            "Tanh"
-        of Relu:
-            if self.nonlin: "ReLU" else: "Linear"
+    let activation = if self.nonlin: $self.activation else: "Linear"
     result = fmt"{activation} Neuron({self.weights.len})"
 
 # Layer
@@ -76,10 +68,10 @@ proc newLayer*(nin: int, nout: int, activation = Tanh, nonlin = true): Layer =
 
     return Layer(nin: nin, nout: nout, neurons: neurons)
 
-proc call*(self: Layer, x: seq[float|Value]): seq[Value] =
+proc forward*(self: Layer, x: seq[float|Value]): seq[Value] =
     result = newSeq[Value]()
     for n in self.neurons:
-        result.add(n.call(x))
+        result.add(n.forward(x))
 
 proc parameters*(self: Layer): seq[Value] =
     result = newSeq[Value]()
@@ -104,15 +96,15 @@ proc newMLP*(nin: int, nouts: seq[int], activation = Tanh): MLP =
 
     return MLP(layers: layers)
 
-proc call*(self: MLP, x: seq[Value]): seq[Value] =
+proc forward*(self: MLP, x: seq[Value]): seq[Value] =
     var copied = seq(x)
     for layer in self.layers:
-        copied = layer.call(copied)
+        copied = layer.forward(copied)
 
     return copied
 
-proc call*(self: MLP, x: seq[float]): seq[Value] =
-    return self.call(x.mapIt(newValue(it)))
+proc forward*(self: MLP, x: seq[float]): seq[Value] =
+    return self.forward(x.mapIt(newValue(it)))
 
 proc parameters*(self: MLP): seq[Value] =
     result = newSeq[Value]()

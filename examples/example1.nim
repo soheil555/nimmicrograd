@@ -14,7 +14,7 @@ for k in 0..<20:
     # forward pass
     var ypred = newSeq[Value]()
     for x in xs:
-        ypred.add(n.call(x)[0])
+        ypred.add(n.forward(x)[0])
 
     var loss = newValue(0)
     for (ygt, yout) in zip(ys, ypred):
@@ -26,6 +26,6 @@ for k in 0..<20:
 
     # update
     for p in n.parameters():
-        p.data += -0.01 * p.grad
+        p.data += -0.005 * p.grad
 
     echo fmt"{k:2} {loss.data:.15f}"
