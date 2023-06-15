@@ -32,7 +32,7 @@ proc `+`*(self: Value, other: Value): Value =
 proc `+`*(self: Value, other: float|int): Value =
     self + newValue(other.float)
 
-proc `+`*(self: float, other: Value): Value =
+proc `+`*(self: float|int, other: Value): Value =
     other + self
 
 proc `+=`*(self: var Value, other: Value|float|int) =
@@ -45,7 +45,7 @@ proc `*`*(self: Value, other: float|int): Value =
     self * newValue(other.float)
 
 proc `*`*(self: float|int, other: Value): Value =
-    other * self.float
+    other * self
 
 proc `*=`*(self: var Value, other: Value|float|int) =
     self = self * other
@@ -56,7 +56,7 @@ proc `-`*(self: Value): Value =
 proc `-`*(self: Value, other: Value|float|int): Value =
     self + (-other)
 
-proc `-`*(self: float, other: Value): Value =
+proc `-`*(self: float|int, other: Value): Value =
     -other + self
 
 proc `-=`*(self: var Value, other: Value|float|int) =
@@ -68,8 +68,8 @@ proc `**`*(self: Value, other: float): Value =
 proc `/`*(self: Value|float|int, other: Value): Value =
     self * (other ** -1)
 
-proc `/`*(self: Value, other: float): Value =
-    self * (other.pow(-1))
+proc `/`*(self: Value, other: float|int): Value =
+    self * (other.float.pow(-1))
 
 proc `/=`*(self: var Value, other: Value|float|int) =
     self = self / other
